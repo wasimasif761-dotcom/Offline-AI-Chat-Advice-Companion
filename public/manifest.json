@@ -1,10 +1,10 @@
 {
-  "id": "/",
+  "id": "./",
   "name": "Offline AI Urdu Advice Companion",
   "short_name": "Urdu AI",
   "description": "Fast offline AI chat & advice companion optimized for mobile. Understands Roman Urdu and responds strictly in proper Urdu script.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#059669",
@@ -14,25 +14,25 @@
   "categories": ["lifestyle", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/pwa-192x192.png",
+      "src": "./pwa-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa-512x512.png",
+      "src": "./pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa-maskable-512x512.png",
+      "src": "./pwa-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon.svg",
+      "src": "./icon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any"

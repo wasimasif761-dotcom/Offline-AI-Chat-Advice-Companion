@@ -3,18 +3,18 @@
  * Developed by Waseem Asif
  */
 
-const CACHE_NAME = 'urdu-ai-companion-v1.0.0';
+const CACHE_NAME = 'urdu-ai-companion-v1.2.0';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json',
-  '/icon.svg',
-  '/pwa-192x192.png',
-  '/pwa-512x512.png',
-  '/pwa-maskable-512x512.png',
-  '/apple-touch-icon.png'
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './manifest.json',
+  './icon.svg',
+  './pwa-192x192.png',
+  './pwa-512x512.png',
+  './pwa-maskable-512x512.png',
+  './apple-touch-icon.png'
 ];
 
 // Install Event - Precache critical shell
@@ -49,8 +49,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip non-GET requests or chrome-extension URLs
-  if (event.request.method !== 'GET' || url.protocol.startsWith('chrome-extension')) {
+  // Skip non-GET requests or chrome-extension URLs or live API lookups
+  if (event.request.method !== 'GET' || url.protocol.startsWith('chrome-extension') || url.pathname.startsWith('/api/')) {
     return;
   }
 
@@ -66,8 +66,8 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          return caches.match('/index.html').then((cached) => {
-            return cached || caches.match('/');
+          return caches.match('./index.html').then((cached) => {
+            return cached || caches.match('./');
           });
         })
     );
@@ -83,19 +83,14 @@ self.addEventListener('fetch', (event) => {
   ) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
+        if (cachedResponse) return cachedResponse;
         return fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const clone = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           }
           return networkResponse;
-        }).catch(() => {
-          // Ignore font fetch failure when offline
-          return new Response('', { status: 408, statusText: 'Offline' });
-        });
+        }).catch(() => new Response('', { status: 408, statusText: 'Offline' }));
       })
     );
     return;
@@ -112,11 +107,8 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch((err) => {
-          // If network failed and we have no cachedResponse, return friendly fallback if possible
-          if (!cachedResponse) {
-            console.log('[ServiceWorker] Fetch failed offline for:', event.request.url);
-          }
+        .catch(() => {
+          // Silent offline catch
         });
 
       return cachedResponse || fetchPromise;

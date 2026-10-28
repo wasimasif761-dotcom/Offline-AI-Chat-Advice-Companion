@@ -10,24 +10,31 @@
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- PWA & Mobile Web App Meta -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA & Mobile Web App Meta (Relative paths for GitHub Pages subfolder compatibility) -->
+    <link rel="manifest" href="./manifest.json" />
     <meta name="theme-color" content="#059669" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Urdu AI" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="shortcut icon" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="shortcut icon" href="./icon.svg" />
 
     <!-- Google Fonts for High-Fidelity UI and Authentic Urdu Nastaliq Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Stylesheet -->
-    <link rel="stylesheet" href="/style.css" />
+    <!-- Critical Inline Styles: Guarantees modal hiding and base theme instantly -->
+    <style>
+      .hidden { display: none !important; }
+      .modal-backdrop.hidden, .dropdown-menu.hidden, .view-panel.hidden, .download-progress-container.hidden, .typing-indicator-row.hidden { display: none !important; }
+      html, body { background-color: #070b13; color: #f8fafc; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    </style>
+
+    <!-- Production Glassmorphic Stylesheet -->
+    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
     <!-- App Root Wrapper -->
@@ -804,6 +811,6 @@
     </div>
 
     <!-- Application Engine Script -->
-    <script type="module" src="/script.js"></script>
+    <script type="module" src="./script.js"></script>
   </body>
 </html>

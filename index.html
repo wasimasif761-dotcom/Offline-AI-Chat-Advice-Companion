@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Offline AI Chat & Advice Companion</title>
+    <meta name="description" content="A fast, offline-capable PWA AI companion optimized for mobile devices. Understands Roman Urdu and responds in authentic Urdu script with in-browser local AI engine." />
+    <meta property="og:title" content="Offline AI Chat & Advice Companion" />
+    <meta property="og:description" content="A fast, offline-capable PWA AI companion optimized for mobile devices. Understands Roman Urdu and responds in authentic Urdu script with in-browser local AI engine." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- PWA & Mobile Web App Meta -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#059669" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Urdu AI" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="shortcut icon" href="/icon.svg" />
+
+    <!-- Google Fonts for High-Fidelity UI and Authentic Urdu Nastaliq Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- App Root Wrapper -->
+    <div id="appContainer" class="app-container">
+      
+      <!-- Top Diagnostic & Connectivity Bar -->
+      <aside class="status-strip" aria-label="System Status">
+        <div class="status-group">
+          <!-- Online/Offline Live Badge -->
+          <div id="connectionBadge" class="badge online">
+            <span class="status-dot"></span>
+            <span id="connectionText" class="badge-text">Online</span>
+          </div>
+
+          <!-- Hardware Acceleration Indicator -->
+          <div id="engineBadge" class="badge engine-badge" title="AI Execution Engine">
+            <svg class="badge-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="4" y="4" width="16" height="16" rx="2" />
+              <rect x="9" y="9" width="6" height="6" />
+              <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
+            </svg>
+            <span id="engineBadgeText">Detecting GPU...</span>
+          </div>
+        </div>
+
+        <div class="status-group actions">
+          <!-- Install App PWA Button -->
+          <button id="pwaInstallBtn" class="pwa-install-btn hidden" aria-label="Install App to Device">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Install App</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- App Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <!-- Animated Dynamic Logo -->
+          <div class="brand-logo" aria-hidden="true">
+            <div class="logo-inner">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                <path d="M12 7v5" stroke="#10b981" />
+                <circle cx="12" cy="15" r="0.8" fill="#10b981" />
+              </svg>
+            </div>
+            <span class="logo-pulse"></span>
+          </div>
+
+          <div class="brand-details">
+            <h1 class="brand-title">
+              Urdu AI Companion
+              <span class="urdu-title" dir="rtl">آف لائن اردو رہبر</span>
+            </h1>
+            <p class="brand-subtitle">
+              <span class="badge-pill">Roman Urdu → اردو</span>
+              <span class="badge-pill mobile-tag">100% Offline Ready</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Header Actions: Theme & 3-Dot Menu -->
+        <div class="header-actions">
+          <button id="themeToggleBtn" class="icon-btn" title="Toggle Theme" aria-label="Toggle Theme">
+            <svg id="themeIconSun" class="theme-icon hidden" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <svg id="themeIconMoon" class="theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          </button>
+
+          <!-- 3-Dot Menu Button -->
+          <div class="menu-dropdown-container">
+            <button id="menuToggleBtn" class="icon-btn" aria-haspopup="true" aria-expanded="false" title="More Options" aria-label="Menu">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <circle cx="12" cy="5" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="19" r="2" />
+              </svg>
+            </button>
+
+            <!-- 3-Dot Dropdown Menu List -->
+            <div id="dropdownMenu" class="dropdown-menu hidden" role="menu">
+              <button class="dropdown-item" id="menuItemHistory" role="menuitem">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span>History (چیٹ ہسٹری)</span>
+              </button>
+              <button class="dropdown-item" id="menuItemSettings" role="menuitem">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                <span>Settings (ترتیبات)</span>
+              </button>
+              <button class="dropdown-item" id="menuItemHelp" role="menuitem">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span>Help & Feedback (رہنمائی)</span>
+              </button>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" id="menuItemClear" role="menuitem">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>Clear Chat (چیٹ صاف کریں)</span>
+              </button>
+              <button class="dropdown-item" id="menuItemExport" role="menuitem">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span>Export Chat (محفوظ کریں)</span>
+              </button>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" id="menuItemInfo" role="menuitem">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <span>App Info (ایپ معلومات)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- App Dual Section Navigation Tabs -->
+      <nav class="app-tabs" aria-label="Section Navigation">
+        <button id="tabChatBtn" class="app-tab active" data-tab="chatView">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>گفتگو و رہبر (Chat Companion)</span>
+        </button>
+        <button id="tabAdminBtn" class="app-tab" data-tab="adminView">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z" />
+            <circle cx="12" cy="13" r="2" />
+          </svg>
+          <span>ایڈمن دماغی تربیت (Admin Brain)</span>
+          <span id="brainCountBadge" class="tab-badge" title="Trained Memories">0</span>
+        </button>
+      </nav>
+
+      <!-- ===================================================================
+           VIEW 1: CHAT & ADVICE COMPANION VIEW
+           =================================================================== -->
+      <div id="chatView" class="view-panel active">
+        <!-- Main Local Model Installer / Manager Card -->
+        <section class="model-manager-card" id="modelManagerCard" aria-label="AI Model Management">
+          <div class="manager-header">
+            <div class="manager-title-row">
+              <div class="status-indicator-icon" id="modelStatusIcon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="manager-title">In-Browser Local AI Model</h2>
+                <p class="manager-desc" id="modelStatusSubtitle">Install once to chat 100% offline without internet</p>
+              </div>
+            </div>
+            <button id="toggleManagerBtn" class="collapse-btn" title="Toggle Model Details" aria-expanded="true">
+              <svg id="collapseArrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="manager-body" id="managerBody">
+            <!-- Model Selection Dropdown -->
+            <div class="model-selector-row">
+              <label for="modelSelect" class="selector-label">Select Model:</label>
+              <div class="select-wrapper">
+                <select id="modelSelect" class="model-select">
+                  <option value="SmolLM2-135M-Instruct-q0f32-MLC" selected>
+                    SmolLM2 135M (~130MB) - Best for OPPO A15s & Low RAM
+                  </option>
+                  <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">
+                    Qwen 2.5 0.5B (~350MB) - Excellent Urdu Comprehension
+                  </option>
+                  <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">
+                    Llama 3.2 1B (~850MB) - Advanced Reasoning
+                  </option>
+                  <option value="builtin-offline">
+                    Built-in Neural Rule Engine (0 MB - Instant, No WebGPU needed)
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Progress Bar Container (active during model download) -->
+            <div id="downloadProgressContainer" class="download-progress-container hidden">
+              <div class="progress-info-row">
+                <span id="downloadStatusText" class="progress-status">Downloading AI weights...</span>
+                <span id="downloadPercentText" class="progress-percent">0%</span>
+              </div>
+              <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="progressBarFill" class="progress-fill" style="width: 0%"></div>
+              </div>
+              <div class="progress-meta-row">
+                <span id="downloadBytesText" class="progress-meta">0 MB / 0 MB</span>
+                <span id="downloadStageText" class="progress-meta">Initializing cache</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="manager-actions">
+              <button id="downloadModelBtn" class="btn btn-primary download-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span id="downloadBtnText">Download & Cache Model</span>
+              </button>
+
+              <button id="clearCacheBtn" class="btn btn-ghost" title="Clear Cached Model from Device">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>Delete Cache</span>
+              </button>
+            </div>
+
+            <!-- Storage & Device Specs note -->
+            <div class="manager-footer-note">
+              <div class="storage-info">
+                <span class="dot-indicator"></span>
+                <span id="storageEstimateText">Estimating local storage...</span>
+              </div>
+              <span class="offline-guarantee">🛡️ Works 100% Offline Once Cached</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Chat Interaction Area -->
+        <main class="chat-main" id="chatMain">
+          <!-- Messages Flow Viewport -->
+          <div class="messages-container" id="messagesContainer">
+            
+            <!-- Empty State Greeting Card -->
+            <div class="welcome-card" id="welcomeCard">
+              <div class="welcome-icon">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10-1.82 0-3.53-.487-5-1.336L2 22l1.336-5A9.957 9.957 0 0 1 2 12C2 6.477 6.477 2 12 2z" />
+                  <path d="M8 12h.01M12 12h.01M16 12h.01" stroke-width="3" stroke-linecap="round" />
+                </svg>
+              </div>
+              <h2 class="welcome-urdu-title" dir="rtl">خوش آمدید! آپ کا ذاتی آف لائن رہبر</h2>
+              <p class="welcome-urdu-desc" dir="rtl">
+                آپ بلا جھجھک رومن اردو (Roman Urdu) میں اپنی پریشانی، زندگی کے مسائل، تعلیم، کیریئر، رشتے یا کوئی بھی مشورہ طلب کریں۔ رہبر آپ کو خالص اور بامقصد اردو میں رہنمائی فراہم کرے گا۔
+              </p>
+
+              <div class="prompt-chips-label">
+                <span>Tajweez Kardah Sawalaat (تجویز کردہ سوالات):</span>
+              </div>
+
+              <!-- Quick Suggestion Chips in Roman Urdu -->
+              <div class="prompt-chips-grid">
+                <button class="prompt-chip" data-prompt="Mujhe bohot tension aur stress ho rahi hai, dimaghi sukoon ke liye kya karun?">
+                  <span>"Mujhe bohot tension aur stress ho rahi hai..."</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+                <button class="prompt-chip" data-prompt="Kamyabi aur kamyab shakhsiyat banne ke asool kya hain?">
+                  <span>"Kamyabi hasil karne ke asool kya hain?"</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+                <button class="prompt-chip" data-prompt="Subah jaldi uthne ke faide aur aadat banane ka tarika batao.">
+                  <span>"Subah jaldi uthne ke faide aur aadat..."</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+                <button class="prompt-chip" data-prompt="Dost se ghalat fehmi aur narazgi khatam karne ka tarika kya hai?">
+                  <span>"Dost se narazgi aur ghalat fehmi dur karein..."</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+                <button class="prompt-chip" data-prompt="Parhai aur exam mein focus kaise barhaon? Waqt zaya hone se kaise bachun?">
+                  <span>"Parhai aur study mein focus kaise barhaon?"</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+                <button class="prompt-chip" data-prompt="Waseem Asif kaun hain?">
+                  <span>"Waseem Asif kaun hain?"</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic Chat Messages Injected Here -->
+
+            <!-- Animated Typing Indicator Bubble -->
+            <div id="typingIndicator" class="typing-indicator-row hidden" aria-live="polite">
+              <div class="avatar ai-avatar">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <div class="typing-bubble">
+                <div class="typing-dots">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                </div>
+                <span id="typingIndicatorText" class="typing-text" dir="rtl">رہبر غور کر رہا ہے...</span>
+              </div>
+            </div>
+
+          </div>
+        </main>
+
+        <!-- Bottom Floating Input Area -->
+        <footer class="chat-input-wrapper">
+          <form id="chatForm" class="chat-input-form" onsubmit="return false;">
+            <div class="input-container glass-card">
+              <textarea
+                id="chatInput"
+                rows="1"
+                placeholder="Roman Urdu mein likhein... (e.g. Kal exam hai kya karun?)"
+                aria-label="Type message in Roman Urdu"
+                autocomplete="off"
+              ></textarea>
+
+              <div class="input-actions">
+                <!-- Live Internet Search Toggle Button -->
+                <button type="button" id="liveSearchToggleBtn" class="action-icon-btn" title="Live Internet Search (آن لائن تازہ معلومات)" aria-label="Toggle Live Search">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                </button>
+
+                <!-- Voice Recognition Button (if supported) -->
+                <button type="button" id="voiceInputBtn" class="action-icon-btn" title="Voice Input (Roman Urdu)" aria-label="Voice Input">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
+                </button>
+
+                <!-- Clear Input Button -->
+                <button type="button" id="clearInputBtn" class="action-icon-btn hidden" title="Clear text" aria-label="Clear input">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+
+                <!-- Send Button -->
+                <button type="submit" id="sendBtn" class="send-btn" title="Send message" aria-label="Send">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Attribution and Offline Security Tagline -->
+          <div class="branding-bar">
+            <span class="branding-credit">Developed by Waseem Asif</span>
+            <span class="branding-divider">•</span>
+            <span class="branding-privacy" id="searchModeIndicator">Offline Engine Active</span>
+          </div>
+        </footer>
+      </div>
+
+      <!-- ===================================================================
+           VIEW 2: ADMIN BRAIN & MEMORY TRAINING SECTION (دماغی تربیت)
+           =================================================================== -->
+      <div id="adminView" class="view-panel hidden">
+        <div class="admin-container">
+          
+          <!-- Admin Banner -->
+          <div class="admin-banner glass-card">
+            <div class="admin-banner-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z" />
+                <circle cx="12" cy="13" r="2" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="admin-banner-title">ایڈمن دماغی تربیت (AI Brain & Long-Term Memory)</h2>
+              <p class="admin-banner-desc" dir="rtl">
+                یہاں آپ اے آئی کو جو بھی نئی بات، ذاتی معلومات، دفتری اصول یا حقائق سکھائیں گے، وہ اس کے دماغ میں مستقل طور پر محفوظ ہو جائیں گے۔ جب بھی کوئی چیٹ میں اس کے بارے میں پوچھے گا، ماڈل آپ کا سکھایا ہوا جواب درست اردو میں دے گا!
+              </p>
+            </div>
+          </div>
+
+          <!-- Add Memory Form Card -->
+          <div class="brain-card glass-card">
+            <h3 class="brain-card-title">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              <span>Teach AI New Knowledge (نئی بات سکھائیں)</span>
+            </h3>
+
+            <form id="trainBrainForm" class="brain-form" onsubmit="return false;">
+              <div class="form-group">
+                <label for="brainQueryInput" class="form-label">
+                  Sawal / Topic / Key (Roman Urdu میں لکھیں):
+                </label>
+                <input
+                  type="text"
+                  id="brainQueryInput"
+                  class="form-input"
+                  placeholder="e.g. Waseem Asif kaun hain? ya Mera office timing kya hai?"
+                  required
+                />
+                <span class="form-hint">جب بھی صارف اس موضوع یا سوال کے بارے میں پوچھے گا، یہ میموری ٹریگر ہوگی۔</span>
+              </div>
+
+              <div class="form-group">
+                <label for="brainAnswerInput" class="form-label">
+                  Jawab / Haqeeqat / Hidayat (اردو رسم الخط یا Roman Urdu میں):
+                </label>
+                <textarea
+                  id="brainAnswerInput"
+                  class="form-textarea"
+                  rows="3"
+                  placeholder="e.g. وسیم آصف ایک ماہر سافٹ ویئر انجینئر اور پی ڈبلیو اے آرکیٹیکٹ ہیں جنہوں نے یہ ایپلیکیشن بنائی ہے۔"
+                  required
+                ></textarea>
+                <span class="form-hint">یہ جواب ماڈل کے دماغ میں محفوظ ہوگا اور چیٹ میں صارفین کو دیا جائے گا۔</span>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group half">
+                  <label for="brainCategorySelect" class="form-label">Category (قسم):</label>
+                  <select id="brainCategorySelect" class="form-select">
+                    <option value="personal">ذاتی معلومات (Personal)</option>
+                    <option value="business">کاروباری اصول و اوقات (Business & Rules)</option>
+                    <option value="advice">خاص رہنمائی و نصیحت (Special Advice)</option>
+                    <option value="general">عمومی حقائق (General Knowledge)</option>
+                  </select>
+                </div>
+
+                <div class="form-group half form-actions-align">
+                  <button type="submit" id="saveBrainBtn" class="btn btn-primary full-width">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                      <polyline points="17 21 17 13 7 13 7 21" />
+                      <polyline points="7 3 7 8 15 8" />
+                    </svg>
+                    <span>دماغ میں محفوظ کریں (Save Fact)</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Memory Knowledge Base Explorer -->
+          <div class="brain-card glass-card">
+            <div class="memory-header-row">
+              <div>
+                <h3 class="brain-card-title">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  </svg>
+                  <span>Active Trained Memories (محفوظ شدہ یادداشتیں)</span>
+                </h3>
+                <p class="form-hint">یہ وہ تمام باتیں ہیں جو آپ نے ماڈل کے دماغ کو سکھائی ہیں۔</p>
+              </div>
+
+              <!-- Backup / Restore Tools -->
+              <div class="memory-tools-row">
+                <button id="exportBrainBtn" class="btn btn-ghost btn-sm" title="Export Brain Backup as JSON">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                  <span>Backup JSON</span>
+                </button>
+                <label for="importBrainFile" class="btn btn-ghost btn-sm cursor-pointer" title="Import Brain Backup">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                  <span>Restore JSON</span>
+                </label>
+                <input type="file" id="importBrainFile" accept=".json" class="hidden" />
+              </div>
+            </div>
+
+            <!-- Search Filter for memories -->
+            <div class="memory-search-row">
+              <input
+                type="text"
+                id="searchBrainInput"
+                class="form-input"
+                placeholder="یادداشتوں میں تلاش کریں (Search memories)..."
+              />
+            </div>
+
+            <!-- Memories List Container -->
+            <div id="brainMemoryList" class="brain-memory-list">
+              <!-- Dynamically populated memories -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Modals Layer -->
+
+      <!-- 1. History Modal -->
+      <div id="historyModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="historyTitle" class="modal-title">Conversation History (چیٹ تاریخ)</h3>
+            <button class="modal-close-btn" data-close="historyModal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="history-actions-row">
+              <button id="newChatBtn" class="btn btn-outline full-width">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                <span>Start New Chat (نئی گفتگو)</span>
+              </button>
+            </div>
+            <div id="historyList" class="history-list">
+              <!-- Dynamically populated sessions -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Settings Modal -->
+      <div id="settingsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="settingsTitle" class="modal-title">Settings (ترتیبات)</h3>
+            <button class="modal-close-btn" data-close="settingsModal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body settings-body">
+            <!-- Offline Engine Preference -->
+            <div class="setting-item">
+              <label class="setting-label" for="settingEngine">AI Engine Mode</label>
+              <select id="settingEngine" class="setting-select">
+                <option value="auto">Auto (Brain Memory + Local Model + Online Fallback)</option>
+                <option value="force-local">Force Local WebLLM Engine (100% Offline)</option>
+                <option value="force-builtin">Force Built-in Fast Neural Rules (Zero RAM)</option>
+              </select>
+            </div>
+
+            <!-- Urdu Typography Font Selection -->
+            <div class="setting-item">
+              <label class="setting-label" for="settingFont">Urdu Script Style (اردو فونٹ)</label>
+              <select id="settingFont" class="setting-select">
+                <option value="nastaliq">Noto Nastaliq Urdu (خوشخط نستعلیق)</option>
+                <option value="naskh">Noto Sans Arabic (واضح نسخ / نوری)</option>
+                <option value="system">System Default Arabic/Urdu</option>
+              </select>
+            </div>
+
+            <!-- Urdu Font Size Range -->
+            <div class="setting-item">
+              <div class="setting-label-row">
+                <label class="setting-label" for="settingFontSize">Urdu Font Size</label>
+                <span id="fontSizeVal">20px</span>
+              </div>
+              <input type="range" id="settingFontSize" min="16" max="28" value="20" step="1" class="setting-range" />
+            </div>
+
+            <!-- Temperature slider -->
+            <div class="setting-item">
+              <div class="setting-label-row">
+                <label class="setting-label" for="settingTemp">Advice Creativity (Temperature)</label>
+                <span id="tempVal">0.6</span>
+              </div>
+              <input type="range" id="settingTemp" min="0.1" max="1.0" value="0.6" step="0.05" class="setting-range" />
+            </div>
+
+            <!-- Auto Internet Search Fallback -->
+            <div class="setting-item switch-item">
+              <div>
+                <label class="setting-label" for="settingOnlineFallback">Auto Live Internet Search</label>
+                <p class="setting-hint">Fetch live data from Google Search when online if not in offline cache</p>
+              </div>
+              <input type="checkbox" id="settingOnlineFallback" checked class="setting-checkbox" />
+            </div>
+
+            <!-- Haptic Vibration toggle -->
+            <div class="setting-item switch-item">
+              <label class="setting-label" for="settingHaptic">Haptic Touch Feedback (Vibration)</label>
+              <input type="checkbox" id="settingHaptic" checked class="setting-checkbox" />
+            </div>
+
+            <!-- Low-end device performance boost mode -->
+            <div class="setting-item switch-item">
+              <div>
+                <label class="setting-label" for="settingLowPower">Low-End Mobile Optimization</label>
+                <p class="setting-hint">Optimized for OPPO A15s & 4GB RAM devices (smoother scrolling, reduced shaders)</p>
+              </div>
+              <input type="checkbox" id="settingLowPower" checked class="setting-checkbox" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Help & Feedback Modal -->
+      <div id="helpModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="helpTitle" class="modal-title">Help & Guide (رہنمائی)</h3>
+            <button class="modal-close-btn" data-close="helpModal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body text-content">
+            <h4 class="help-section-title">1. How Offline AI Works (آف لائن ماڈل کیسے چلتا ہے؟)</h4>
+            <p>
+              This application downloads a quantized, highly-efficient language model directly into your mobile browser's local CacheStorage and IndexedDB. Once installed, it processes everything locally on your phone without sending any text to external servers!
+            </p>
+
+            <h4 class="help-section-title">2. Admin Brain Training (دماغی تربیت)</h4>
+            <p>
+              Go to the <strong>Admin Brain</strong> tab to teach the AI custom facts, rules, or answers. Whatever you enter is stored permanently in the phone's memory. When asked in Roman Urdu, the AI recognizes the taught knowledge and provides the exact Urdu answer!
+            </p>
+
+            <h4 class="help-section-title">3. Live Internet Fallback (لائیو انٹرنیٹ تلاش)</h4>
+            <p>
+              If a question is not available in the offline model and you are connected to the internet, you can toggle the globe icon (🌐) or let the app search Google in real-time, returning pure Urdu answers!
+            </p>
+
+            <h4 class="help-section-title">4. Low-End Phone Optimization (OPPO A15s / 4GB RAM)</h4>
+            <p>
+              If your phone has 4GB RAM, we recommend the <strong>SmolLM2 135M</strong> model or the <strong>Built-in Instant Engine</strong>. These run with zero lag, instant startup, and zero thermal throttling.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Export Modal -->
+      <div id="exportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="exportTitle" class="modal-title">Export Chat (چیٹ محفوظ کریں)</h3>
+            <button class="modal-close-btn" data-close="exportModal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">Save your conversation transcript to your device or copy it to your clipboard.</p>
+            <div class="export-options">
+              <button id="exportTxtBtn" class="btn btn-outline full-width">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
+                <span>Download as Text File (.txt)</span>
+              </button>
+              <button id="exportJsonBtn" class="btn btn-outline full-width">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                <span>Download as JSON (.json)</span>
+              </button>
+              <button id="copyTranscriptBtn" class="btn btn-primary full-width">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+                <span id="copyTranscriptText">Copy Entire Conversation</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. App Info Modal -->
+      <div id="appInfoModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="infoTitle" class="modal-title">App Info & Diagnostics</h3>
+            <button class="modal-close-btn" data-close="appInfoModal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body text-content">
+            <div class="info-stat-card">
+              <div class="stat-row">
+                <span class="stat-name">Application:</span>
+                <span class="stat-value">Offline AI Urdu Advice Companion</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-name">Version:</span>
+                <span class="stat-value">v1.2.0 (Full-Stack PWA)</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-name">Hardware Acceleration:</span>
+                <span class="stat-value" id="diagWebGpu">Checking...</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-name">Device Memory / RAM:</span>
+                <span class="stat-value" id="diagRam">Estimating...</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-name">Logical CPU Cores:</span>
+                <span class="stat-value" id="diagCores">-</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-name">Storage Quota:</span>
+                <span class="stat-value" id="diagStorage">-</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-name">Custom Brain Memories:</span>
+                <span class="stat-value" id="diagBrainCount">0</span>
+              </div>
+            </div>
+
+            <div class="developer-box">
+              <div class="developer-avatar">WA</div>
+              <div>
+                <h4 class="developer-name">Developed by Waseem Asif</h4>
+                <p class="developer-bio">Lead Engineer & PWA Architect. Dedicated to crafting responsive, local-first mobile AI experiences for Pakistani and global Urdu speakers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. iOS Install Guide Modal -->
+      <div id="iosGuideModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="iosTitle">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="iosTitle" class="modal-title">Install on iPhone / iPad</h3>
+            <button class="modal-close-btn" data-close="iosGuideModal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body text-content">
+            <p>To use this app 100% offline like a native app on iOS:</p>
+            <ol class="ios-steps">
+              <li>Tap the <strong>Share</strong> icon in the Safari toolbar (square with arrow).</li>
+              <li>Scroll down the actions list and tap <strong>Add to Home Screen</strong>.</li>
+              <li>Tap <strong>Add</strong> in the top-right corner.</li>
+            </ol>
+            <button class="btn btn-primary full-width" data-close="iosGuideModal">Got It</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Confirm Clear Modal -->
+      <div id="confirmClearModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="clearTitle">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="clearTitle" class="modal-title">Clear Current Conversation?</h3>
+            <button class="modal-close-btn" data-close="confirmClearModal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">Kya aap waqai is guftagu ko khatam karna chahte hain? (All current messages will be cleared).</p>
+            <div class="modal-actions-row">
+              <button class="btn btn-ghost" data-close="confirmClearModal">Cancel</button>
+              <button id="confirmClearBtn" class="btn btn-danger">Yes, Clear Chat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Notification Container -->
+      <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    </div>
+
+    <!-- Application Engine Script -->
+    <script type="module" src="/script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "Offline AI Chat & Advice Companion",
+  "description": "A fast, offline-capable PWA AI companion optimized for mobile devices. Understands Roman Urdu and responds in authentic Urdu script with in-browser local AI engine.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

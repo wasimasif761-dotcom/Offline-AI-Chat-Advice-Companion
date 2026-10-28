@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="bubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(16, 185, 129, 0.25)" stroke-width="6" stroke-dasharray="12 16" />
+  
+  <!-- Neural Pulse rings -->
+  <circle cx="256" cy="240" r="120" fill="url(#bubbleGrad)" filter="url(#glow)" opacity="0.9" />
+  
+  <!-- Urdu Calligraphic Emblem / Advice Sparkle -->
+  <path d="M210 210 C210 170, 302 170, 302 210 C302 245, 235 255, 235 285 L235 300 M235 330 L235 345" 
+        fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="235" cy="340" r="8" fill="#ffffff" />
+  
+  <!-- Offline badge -->
+  <g transform="translate(320, 320)">
+    <circle cx="40" cy="40" r="36" fill="#10b981" stroke="#ffffff" stroke-width="6" />
+    <path d="M30 42 L38 50 L52 34" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>

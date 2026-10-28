@@ -1,9 +1,10 @@
 /**
  * Service Worker for Offline AI Urdu Advice Companion
  * Developed by Waseem Asif
+ * Version: 4.0.0 (Auto-purging stale cache, Network-First for core scripts)
  */
 
-const CACHE_NAME = 'urdu-ai-companion-v1.2.0';
+const CACHE_NAME = 'urdu-ai-v4.0.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -17,27 +18,27 @@ const STATIC_ASSETS = [
   './apple-touch-icon.png'
 ];
 
-// Install Event - Precache critical shell
+// Force immediate activation
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[ServiceWorker] Precaching App Shell');
       return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('[ServiceWorker] Precache partial error (ignored for resilient startup):', err);
+        console.warn('[SW] Precache partial fallback:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// Activate Event - Clean up stale caches
+// Purge any and all legacy caches on activation
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keyList) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        keyList.map((key) => {
-          if (key !== CACHE_NAME && !key.startsWith('webllm')) {
-            console.log('[ServiceWorker] Removing old cache:', key);
-            return caches.delete(key);
+        keys.map((k) => {
+          if (k !== CACHE_NAME && !k.startsWith('urdu_ai_offline_v')) {
+            console.log('[SW] Purging outdated cache:', k);
+            return caches.delete(k);
           }
         })
       );
@@ -45,17 +46,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event - Offline-first strategy for app shell & CDN assets
+// Network-First with Cache fallback for app scripts & HTML
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip non-GET requests or chrome-extension URLs or live API lookups
+  // Skip non-GET requests or server API proxy routes
   if (event.request.method !== 'GET' || url.protocol.startsWith('chrome-extension') || url.pathname.startsWith('/api/')) {
     return;
   }
 
-  // Handle navigation requests (SPA HTML entry)
-  if (event.request.mode === 'navigate') {
+  // Network-First strategy for core app shell files to ensure GitHub updates reflect immediately
+  if (
+    event.request.mode === 'navigate' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('/')
+  ) {
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {
@@ -66,52 +73,29 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          return caches.match('./index.html').then((cached) => {
-            return cached || caches.match('./');
+          return caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+            if (event.request.mode === 'navigate') {
+              return caches.match('./index.html').then((h) => h || caches.match('./'));
+            }
+            return new Response('Offline content unavailable', { status: 408, statusText: 'Offline' });
           });
         })
     );
     return;
   }
 
-  // Handle Google Fonts & static CDN libraries (Cache First)
-  if (
-    url.hostname.includes('googleapis.com') ||
-    url.hostname.includes('gstatic.com') ||
-    url.hostname.includes('cdnjs.cloudflare.com') ||
-    url.hostname.includes('cdn.jsdelivr.net')
-  ) {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
-        return fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const clone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return networkResponse;
-        }).catch(() => new Response('', { status: 408, statusText: 'Offline' }));
-      })
-    );
-    return;
-  }
-
-  // Handle App Assets (Stale-While-Revalidate)
+  // Cache-First with Network fallback for fonts, icons & images
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const clone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          // Silent offline catch
-        });
-
-      return cachedResponse || fetchPromise;
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((netRes) => {
+        if (netRes && netRes.status === 200) {
+          const clone = netRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return netRes;
+      }).catch(() => new Response('', { status: 408, statusText: 'Offline' }));
     })
   );
 });

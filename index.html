@@ -33,8 +33,25 @@
       html, body { background-color: #070b13; color: #f8fafc; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
     </style>
 
-    <!-- Production Glassmorphic Stylesheet -->
-    <link rel="stylesheet" href="./style.css" />
+    <!-- Production Glassmorphic Stylesheet with Cache Busting -->
+    <link rel="stylesheet" href="./style.css?v=4.0.0" />
+
+    <!-- Cache Verification & Auto-Refresh for PWA updates -->
+    <script>
+      (function() {
+        if ('caches' in window) {
+          // Clean legacy caches from previous versions
+          caches.keys().then(function(keys) {
+            keys.forEach(function(k) {
+              if (k.indexOf('urdu-ai-v4') === -1 && k.indexOf('urdu_ai_offline_v') === -1) {
+                console.log('[App] Clearing legacy cache:', k);
+                caches.delete(k);
+              }
+            });
+          });
+        }
+      })();
+    </script>
   </head>
   <body>
     <!-- App Root Wrapper -->
@@ -810,7 +827,7 @@
 
     </div>
 
-    <!-- Application Engine Script -->
-    <script type="module" src="./script.js"></script>
+    <!-- Application Engine Script with Cache-Busting -->
+    <script type="module" src="./script.js?v=4.0.0"></script>
   </body>
 </html>
